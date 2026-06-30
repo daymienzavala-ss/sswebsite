@@ -1,26 +1,142 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ----------------------------------------------------------------------------
+   StangScales design tokens — warm, neutral, editorial
+---------------------------------------------------------------------------- */
+@theme {
+  --color-bg: #f7f4ef;
+  --color-bg-soft: #f0ece3;
+  --color-surface: #fdfcf9;
+  --color-surface-2: #efe9df;
+  --color-border: #e6e0d4;
+  --color-border-strong: #d6cdbd;
+
+  --color-fg: #20201d;
+  --color-muted: #6c685e;
+  --color-faint: #a39c8f;
+
+  /* Warm near-black for the logo splash */
+  --color-ink: #16130f;
+
+  /* Single restrained accent — warm clay */
+  --color-accent: #b25c43;
+  --color-accent-bright: #c4715a;
+  --color-accent-soft: #e9d9d0;
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-sora);
+
+  --radius-card: 1.5rem;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* ----------------------------------------------------------------------------
+   Base
+---------------------------------------------------------------------------- */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(178, 92, 67, 0.16);
+  color: var(--color-fg);
+}
+
+/* Very soft ambient warmth — promoted to its own layer to avoid scroll repaints */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  transform: translateZ(0);
+  background:
+    radial-gradient(55rem 32rem at 82% -12%, rgba(178, 92, 67, 0.06), transparent 60%),
+    radial-gradient(45rem 30rem at 2% 2%, rgba(120, 100, 70, 0.04), transparent 55%);
+}
+
+@layer base {
+  h1, h2, h3, h4 {
+    font-family: var(--font-display), var(--font-inter), sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+
+  /* Inherit color by default, but keep this in @layer base so text-* utilities
+     (e.g. a dark button's text-bg) still win. */
+  a { color: inherit; }
+}
+
+/* ----------------------------------------------------------------------------
+   Utilities
+---------------------------------------------------------------------------- */
+
+/* Kept the class name for continuity; now a solid restrained accent, no gradient */
+.gradient-text {
+  color: var(--color-accent);
+}
+
+/* Kept the class name; now a gentle warm focal wash instead of a techy grid */
+.grid-lines {
+  background:
+    radial-gradient(60% 55% at 50% -5%, rgba(178, 92, 67, 0.05), transparent 70%);
+}
+
+/* A calm raised panel (no backdrop blur) */
+.glass {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow:
+    0 1px 2px rgba(40, 34, 28, 0.04),
+    0 24px 48px -32px rgba(40, 34, 28, 0.22);
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 1px 2px rgba(40, 34, 28, 0.03);
+  transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-3px);
+  box-shadow: 0 28px 50px -34px rgba(40, 34, 28, 0.3);
+}
+
+/* Reveal-on-scroll */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-visible { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+  html { scroll-behavior: auto !important; }
+}
+
+/* Marquee */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+  will-change: transform;
+}
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; }
 }
